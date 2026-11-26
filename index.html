@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css?v=1.4.0">
+  <link rel="stylesheet" href="style.css?v=1.4.1">
 </head>
 <body>
   <div class="bg-deco" aria-hidden="true">
@@ -27,16 +27,11 @@
     </header>
 
     <section class="panel">
-      <h2>📚 选年级</h2>
-      <div id="gradeChips" class="chips"></div>
-
-      <div id="lessonWrap" class="hidden">
-        <h2>📖 选课次</h2>
-        <div id="lessonChips" class="chips"></div>
+      <div class="selects">
+        <label class="sel"><span>📚 年级</span><select id="gradeSel"></select></label>
+        <label class="sel"><span>📖 课次</span><select id="lessonSel"></select></label>
+        <label class="sel"><span>🎯 题目数</span><select id="countSel"></select></label>
       </div>
-
-      <h2>🎯 题目数量</h2>
-      <div id="countChips" class="chips"></div>
 
       <p id="poolInfo" class="pool-info"></p>
       <button id="startBtn" class="big-btn" type="button">开始对决！</button>
@@ -135,11 +130,11 @@
 
   <div id="confetti" class="confetti" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1.4.0"></script>
-  <script src="js/sound.js?v=1.4.0"></script>
-  <script src="js/questions.js?v=1.4.0"></script>
-  <script src="js/storage.js?v=1.4.0"></script>
-  <script src="js/speak.js?v=1.4.0"></script>
-  <script src="js/app.js?v=1.4.0"></script>
+  <script src="js/data.js?v=1.4.1"></script>
+  <script src="js/sound.js?v=1.4.1"></script>
+  <script src="js/questions.js?v=1.4.1"></script>
+  <script src="js/storage.js?v=1.4.1"></script>
+  <script src="js/speak.js?v=1.4.1"></script>
+  <script src="js/app.js?v=1.4.1"></script>
 </body>
 </html>

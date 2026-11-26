@@ -245,3 +245,18 @@ h1 { font-family: var(--kai); font-size: 44px; margin: 14px 0 4px; letter-spacin
 .speed[data-tier="3"] #speedBar { background: linear-gradient(90deg, #ffd56b, #ffb347); }
 .speed[data-tier="2"] #speedBar { background: linear-gradient(90deg, #8fe3b4, #3fbf7c); }
 .speed[data-tier="1"] #speedBar { background: linear-gradient(90deg, #9ed6ff, #4aa8f0); }
+
+/* 下拉菜单 */
+.selects { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 10px; margin-top: 4px; }
+.sel { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.sel span { font-size: 16px; font-weight: 800; }
+.sel select {
+  width: 100%; min-width: 0; font: inherit; font-size: 16px; font-weight: 700; color: var(--ink);
+  padding: 10px 30px 10px 12px; border: 2px solid #f3d3e2; border-radius: 14px; background-color: #fff;
+  -webkit-appearance: none; appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23f0649a' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center;
+}
+.sel select:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px #ffe0ec; }
+.sel select:disabled { opacity: .55; cursor: default; }
+@media (max-width: 480px) { .selects { grid-template-columns: 1fr 1fr; } .sel:nth-child(2) { grid-column: 1 / -1; grid-row: 2; } }

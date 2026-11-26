@@ -1,7 +1,7 @@
 /* 汉字对决 主程序 */
 (function () {
   'use strict';
-  const VERSION = '1.4.0';
+  const VERSION = '1.4.1';
   const SPEED_SEC = 6;                          // 快手奖：限时 = 题数 × 6 秒
   const SPEED_ACC = 0.8;                        // 并且至少答对八成
   const COUNTS = [6, 10, 15, 21];
@@ -61,14 +61,6 @@
   function show(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
     window.scrollTo(0, 0);
-  }
-  function chip(label, on, onClick) {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'chip' + (on ? ' on' : '');
-    b.textContent = label;
-    b.addEventListener('click', () => { Sound.play('tap'); onClick(); });
-    return b;
   }
   function costText(cost) {
     return Object.keys(cost).map(k => cost[k] + ' ' + EMOJI[k]).join(' ');
@@ -131,22 +123,27 @@
     if (!COUNTS.includes(settings.count)) settings.count = 15;
     Store.saveSettings(settings);
 
-    const gc = $('gradeChips'); gc.innerHTML = '';
-    gc.appendChild(chip('所有年级', settings.grade === 'all', () => { settings.grade = 'all'; settings.lesson = 'all'; renderHome(); }));
-    grades().forEach(g => gc.appendChild(chip(GRADE_NAMES[g] || g + '年级', settings.grade === g,
-      () => { settings.grade = g; settings.lesson = 'all'; renderHome(); })));
-
-    const lw = $('lessonWrap'), lc = $('lessonChips');
-    if (settings.grade === 'all') lw.classList.add('hidden');
-    else {
-      lw.classList.remove('hidden'); lc.innerHTML = '';
-      lc.appendChild(chip('全年级', settings.lesson === 'all', () => { settings.lesson = 'all'; renderHome(); }));
-      lessonsOf(settings.grade).forEach(l => lc.appendChild(chip(l.replace(/^第|课$/g, ''), settings.lesson === l,
-        () => { settings.lesson = l; renderHome(); })));
+    const fill = (sel, items, cur) => {
+      sel.innerHTML = '';
+      items.forEach(([v, label]) => {
+        const o = document.createElement('option');
+        o.value = String(v); o.textContent = label;
+        if (v === cur) o.selected = true;
+        sel.appendChild(o);
+      });
+    };
+    fill($('gradeSel'), [['all', '所有年级'], ...grades().map(g => [g, GRADE_NAMES[g] || g + '年级'])], settings.grade);
+    const ls = $('lessonSel');
+    if (settings.grade === 'all') {
+      fill(ls, [['all', '全部课次']], 'all');
+      ls.disabled = true;
+    } else {
+      const inGrade = ALL.filter(h => h.gradeNo === settings.grade);
+      fill(ls, [['all', `全年级（${inGrade.length} 字）`],
+        ...lessonsOf(settings.grade).map(l => [l, `${l}（${inGrade.filter(h => h.lesson === l).length} 字）`])], settings.lesson);
+      ls.disabled = false;
     }
-
-    const cc = $('countChips'); cc.innerHTML = '';
-    COUNTS.forEach(n => cc.appendChild(chip(n + ' 题', settings.count === n, () => { settings.count = n; renderHome(); })));
+    fill($('countSel'), COUNTS.map(n => [n, n + ' 题']), settings.count);
 
     const pool = currentPool();
     const ok = Questions.createGenerator(pool).available.length > 0;
@@ -428,6 +425,11 @@
   function bind() {
     $('startBtn').addEventListener('click', startGame);
     $('exportBtn').addEventListener('click', exportCSV);
+    $('gradeSel').addEventListener('change', e => {
+      const v = e.target.value; settings.grade = v === 'all' ? 'all' : Number(v); settings.lesson = 'all'; renderHome();
+    });
+    $('lessonSel').addEventListener('change', e => { settings.lesson = e.target.value; renderHome(); });
+    $('countSel').addEventListener('change', e => { settings.count = Number(e.target.value); renderHome(); });
     $('spkA').addEventListener('click', e => { if (game && game.q) Speak.play(game.q.a.py1, e.currentTarget); });
     $('spkB').addEventListener('click', e => { if (game && game.q) Speak.play(game.q.b.py1, e.currentTarget); });
     $('ansA').addEventListener('click', () => answer('A'));
