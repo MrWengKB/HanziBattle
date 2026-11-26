@@ -223,3 +223,5 @@ h1 { font-family: var(--kai); font-size: 44px; margin: 14px 0 4px; letter-spacin
 .result-speed.win { color: #2a9fd6; }
 
 .link-btn.inline { margin: 0; font-size: 13px; }
+.export-fallback { display: block; margin-top: 8px; }
+.export-fallback a { color: var(--pink-d); font-weight: 700; }

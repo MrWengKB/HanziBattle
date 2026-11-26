@@ -1,7 +1,7 @@
 /* 汉字对决 主程序 */
 (function () {
   'use strict';
-  const VERSION = '1.2.0';
+  const VERSION = '1.2.1';
   const SPEED_SEC = 5;                          // 快手奖：每题平均 5 秒
   const SPEED_ACC = 0.8;                        // 并且至少答对八成
   const COUNTS = [6, 10, 15, 21];
@@ -381,14 +381,28 @@
     });
     const cell = v => { const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
     const csv = '\uFEFF' + [head, ...rows].map(r => r.map(cell).join(',')).join('\r\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const d = new Date();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `hanzi-battle-scores-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}.csv`;
-    a.style.display = 'none';
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 3000);
+    const name = `hanzi-battle-scores-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}.csv`;
+    // Safari 对“程序生成的 blob 链接”下载不稳定，改用 data: 链接
+    const isSafari = /^((?!chrome|chromium|crios|fxios|android|edg).)*safari/i.test(navigator.userAgent);
+    let href;
+    if (isSafari) href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    else href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    try {
+      const a = document.createElement('a');
+      a.href = href; a.download = name; a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      setTimeout(() => a.remove(), 1000);
+    } catch (e) { /* 下面还有备用链接 */ }
+    // 备用：如果没有开始下载，可以直接点这个链接
+    const box = $('exportFallback');
+    box.innerHTML = '';
+    const link = document.createElement('a');
+    link.href = href; link.download = name; link.textContent = '没有开始下载？点这里保存 ' + name;
+    box.appendChild(link);
+    box.classList.remove('hidden');
+    if (!isSafari) setTimeout(() => URL.revokeObjectURL(href), 60000);
     Sound.play('tap');
   }
 

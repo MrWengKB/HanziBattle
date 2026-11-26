@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=1.2.1">
 </head>
 <body>
   <div class="bg-deco" aria-hidden="true">
@@ -61,7 +61,8 @@
       <div id="records"></div>
     </section>
 
-    <footer class="foot">成绩只保存在这台设备上，可离线使用 · <button id="exportBtn" class="link-btn inline" type="button">📥 保存成绩为 Excel/CSV</button> · <span id="verLabel"></span></footer>
+    <footer class="foot">成绩只保存在这台设备上，可离线使用 · <button id="exportBtn" class="link-btn inline" type="button">📥 保存成绩为 Excel/CSV</button> · <span id="verLabel"></span>
+      <span id="exportFallback" class="export-fallback hidden"></span></footer>
   </main>
 
   <!-- 游戏 -->
@@ -128,10 +129,10 @@
 
   <div id="confetti" class="confetti" aria-hidden="true"></div>
 
-  <script src="js/data.js"></script>
-  <script src="js/sound.js"></script>
-  <script src="js/questions.js"></script>
-  <script src="js/storage.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/data.js?v=1.2.1"></script>
+  <script src="js/sound.js?v=1.2.1"></script>
+  <script src="js/questions.js?v=1.2.1"></script>
+  <script src="js/storage.js?v=1.2.1"></script>
+  <script src="js/app.js?v=1.2.1"></script>
 </body>
 </html>
