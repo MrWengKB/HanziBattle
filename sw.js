@@ -3,7 +3,7 @@
  * - 网页、脚本、样式、字表：优先联网拿最新版，没网或太慢时用缓存
  * - 字体：缓存优先（文件大、很少改）。更换字体时把 FONT_CACHE 版本号加 1
  */
-const CORE_CACHE = 'hb-core-v8';
+const CORE_CACHE = 'hb-core-v9';
 const FONT_CACHE = 'hb-fonts-v2';
 const AUDIO_CACHE = 'hb-audio-v1';   // 读音：第一次用到时下载并缓存
 const NETWORK_TIMEOUT_MS = 3000;
@@ -20,6 +20,9 @@ const CORE_FILES = [
   'js/speak.js',
   'js/app.js',
   'manifest.webmanifest',
+  'icons/favicon.svg',
+  'icons/favicon-16.png',
+  'icons/favicon-32.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/apple-touch-icon.png'
