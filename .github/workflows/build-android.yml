@@ -27,6 +27,26 @@ jobs:
         with:
           gradle-version: "8.7"
 
+      - name: 准备签名密钥（来自 GitHub Secrets）
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PW: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            {
+              echo "HB_KEYSTORE_FILE=$RUNNER_TEMP/upload.jks"
+              echo "HB_KEYSTORE_PASSWORD=$KS_PW"
+              echo "HB_KEY_ALIAS=$KEY_ALIAS"
+              echo "HB_KEY_PASSWORD=$KEY_PW"
+            } >> "$GITHUB_ENV"
+            echo "使用 GitHub Secrets 里的上传密钥"
+          else
+            echo "::warning::没有设置 ANDROID_KEYSTORE_BASE64，暂时使用仓库里的旧密钥"
+          fi
+
       - name: 编译 APK 和 AAB
         working-directory: android
         run: gradle assembleRelease bundleRelease --no-daemon

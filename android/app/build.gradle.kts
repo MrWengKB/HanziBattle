@@ -43,13 +43,22 @@ android {
         versionName = latestVersionName()
     }
 
-    // 固定签名：每次构建签名一致，新版才能直接覆盖安装旧版
+    // 签名：优先用 GitHub Secrets 里的上传密钥（打包时由 workflow 解码到 HB_KEYSTORE_FILE），
+    // 没有设置时才退回仓库里的旧密钥（只适合直接安装 APK，不要用来上架）
+    val ksFile = System.getenv("HB_KEYSTORE_FILE")
     signingConfigs {
         create("release") {
-            storeFile = file("hanzibattle.keystore")
-            storePassword = "android"
-            keyAlias = "hanzibattle"
-            keyPassword = "android"
+            if (!ksFile.isNullOrEmpty()) {
+                storeFile = file(ksFile)
+                storePassword = System.getenv("HB_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("HB_KEY_ALIAS")
+                keyPassword = System.getenv("HB_KEY_PASSWORD")
+            } else {
+                storeFile = file("hanzibattle.keystore")
+                storePassword = "android"
+                keyAlias = "hanzibattle"
+                keyPassword = "android"
+            }
         }
     }
 
