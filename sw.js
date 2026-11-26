@@ -3,8 +3,8 @@
  * - 网页、脚本、样式、字表：优先联网拿最新版，没网或太慢时用缓存
  * - 字体：缓存优先（文件大、很少改）。更换字体时把 FONT_CACHE 版本号加 1
  */
-const CORE_CACHE = 'hb-core-v1';
-const FONT_CACHE = 'hb-fonts-v1';
+const CORE_CACHE = 'hb-core-v2';
+const FONT_CACHE = 'hb-fonts-v2';
 const NETWORK_TIMEOUT_MS = 3000;
 
 const CORE_FILES = [
@@ -22,7 +22,7 @@ const CORE_FILES = [
   'icons/icon-512.png',
   'icons/apple-touch-icon.png'
 ];
-const FONT_FILES = ['fonts/kaiti-subset.woff2'];
+const FONT_FILES = ['fonts/kaiti.ttf'];
 
 self.addEventListener('install', event => {
   event.waitUntil(Promise.all([
@@ -48,7 +48,7 @@ self.addEventListener('fetch', event => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
-  if (url.pathname.endsWith('.woff2')) event.respondWith(cacheFirst(req));
+  if (url.pathname.endsWith('.ttf')) event.respondWith(cacheFirst(req));
   else event.respondWith(networkFirst(req));
 });
 

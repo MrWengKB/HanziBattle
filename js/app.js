@@ -1,7 +1,7 @@
 /* 汉字对决 主程序 */
 (function () {
   'use strict';
-  const VERSION = '1.0.0';
+  const VERSION = '1.0.1';
   const COUNTS = [6, 10, 15, 21];
   const VALUE = { c: 1, l: 4, k: 8 };          // 1🍭 = 4🍬，1🍰 = 8🍬
   const EMOJI = { c: '🍬', l: '🍭', k: '🍰' };

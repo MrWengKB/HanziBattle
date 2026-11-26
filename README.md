@@ -26,5 +26,5 @@
 
 ## 文件
 - `hanzilist.csv`：字表，复制自 [HanziQuery](https://github.com/MrWengKB/HanziQuery)，删去甲骨文、甲骨文字、课文词语三栏，新增声母1、声母2（由拼音推出；y、w 算声母，a/o/e 开头的字没有声母）。
-- `fonts/kaiti-subset.woff2`：只包含用到的字的楷体子集。字表加了新字后运行 `python tools/subset_font.py 路径/kaiti.ttf` 重新生成。
+- `fonts/kaiti.ttf`：完整楷体字体，复制自 HanziQuery。
 - `index.html`、`style.css`、`js/`：网页本体；`sw.js`：离线缓存。
