@@ -32,12 +32,12 @@ fun latestVersionName(): String {
 
 android {
     namespace = "com.mrwengkb.hanzibattle"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.mrwengkb.hanzibattle"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         // 每次 GitHub Actions 构建自动递增，方便覆盖安装；也用来判断有没有新版本
         versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
         versionName = latestVersionName()
@@ -55,6 +55,25 @@ android {
                 keyPassword = System.getenv("HB_KEY_PASSWORD")
             }
         }
+    }
+
+    // 两个版本：
+    //   direct：直接下载安装的 APK，启动时检查 GitHub 上有没有新版本
+    //   play：上架 Google Play 的 AAB，不能自己检查/下载更新（Play 政策规定只能由 Play 更新）
+    flavorDimensions += "dist"
+    productFlavors {
+        create("direct") {
+            dimension = "dist"
+            buildConfigField("boolean", "UPDATE_CHECK", "true")
+        }
+        create("play") {
+            dimension = "dist"
+            buildConfigField("boolean", "UPDATE_CHECK", "false")
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {

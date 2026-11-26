@@ -25,7 +25,7 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.7"
+          gradle-version: "8.11.1"
 
       - name: 准备签名密钥（来自 GitHub Secrets）
         env:
@@ -50,12 +50,12 @@ jobs:
 
       - name: 编译 APK 和 AAB
         working-directory: android
-        run: gradle assembleRelease bundleRelease --no-daemon
+        run: gradle assembleDirectRelease bundlePlayRelease --no-daemon
 
       - name: 重命名
         run: |
-          cp android/app/build/outputs/apk/release/app-release.apk HanziBattle.apk
-          cp android/app/build/outputs/bundle/release/app-release.aab HanziBattle.aab
+          cp android/app/build/outputs/apk/direct/release/app-direct-release.apk HanziBattle.apk
+          cp android/app/build/outputs/bundle/playRelease/app-play-release.aab HanziBattle.aab
           ls -la HanziBattle.apk HanziBattle.aab
 
       - name: 发布到 Releases（APK 和 AAB 分开，可直接下载）
@@ -69,7 +69,7 @@ jobs:
             echo "第 ${{ github.run_number }} 次构建。"
             echo
             echo "- **HanziBattle.apk**：手机直接下载安装（需要允许安装未知来源应用），完全离线可用。"
-            echo "- **HanziBattle.aab**：上架 Google Play 用，手机不能直接安装。"
+            echo "- **HanziBattle.aab**：上架 Google Play 用，手机不能直接安装（Play 版不含自动检查更新，由 Play 商店负责更新）。"
             echo
             cat latest-notes.md
           } > release-notes.md

@@ -1,7 +1,7 @@
 /* 汉字对决 主程序 */
 (function () {
   'use strict';
-  const VERSION = '1.5.0';
+  const VERSION = '1.5.1';
   const SPEED_SEC = 6;                          // 快手奖：限时 = 题数 × 6 秒
   const SPEED_ACC = 0.8;                        // 并且至少答对八成
   const COUNTS = [6, 10, 15, 21];

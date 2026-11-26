@@ -9,9 +9,12 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.graphics.Insets;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.view.WindowInsets;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
@@ -78,7 +81,25 @@ public class MainActivity extends Activity {
 
         webView = new WebView(this);
         webView.setBackgroundColor(0xFFFFF4F8);
-        setContentView(webView);
+
+        // Android 15 起 App 一律“边到边”显示：给状态栏、导航栏和刘海留出空间，网页不会被挡住
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(0xFFFFF4F8);
+        root.addView(webView, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        root.setOnApplyWindowInsetsListener((v, insets) -> {
+            int l, t, r, b;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Insets in = insets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                l = in.left; t = in.top; r = in.right; b = in.bottom;
+            } else {
+                l = insets.getSystemWindowInsetLeft(); t = insets.getSystemWindowInsetTop();
+                r = insets.getSystemWindowInsetRight(); b = insets.getSystemWindowInsetBottom();
+            }
+            v.setPadding(l, t, r, b);
+            return insets;
+        });
+        setContentView(root);
 
         WebSettings s = webView.getSettings();
         s.setJavaScriptEnabled(true);
@@ -109,7 +130,7 @@ public class MainActivity extends Activity {
 
         webView.loadUrl(START_URL);
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && BuildConfig.UPDATE_CHECK) {
             checkForUpdate();
         }
     }
