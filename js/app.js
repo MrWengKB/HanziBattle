@@ -1,7 +1,7 @@
 /* 汉字对决 主程序 */
 (function () {
   'use strict';
-  const VERSION = '1.1.0';
+  const VERSION = '1.2.0';
   const SPEED_SEC = 5;                          // 快手奖：每题平均 5 秒
   const SPEED_ACC = 0.8;                        // 并且至少答对八成
   const COUNTS = [6, 10, 15, 21];
@@ -367,9 +367,35 @@
     game = null;
   }
 
+  /* ---------- 导出成绩（CSV，Excel 可直接打开） ---------- */
+  function exportCSV() {
+    const list = Store.records();
+    if (!list.length) { $('exportBtn').textContent = '还没有成绩可以保存'; setTimeout(() => { $('exportBtn').textContent = '📥 保存成绩为 Excel/CSV'; }, 2000); return; }
+    const pad = n => String(n).padStart(2, '0');
+    const fmt = t => { const d = new Date(t); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+    const head = ['时间', '范围', '题数', '答对', '最长连对', '糖果🍬', '棒棒糖🍭', '蛋糕🍰', '快手奖🍬', '得到(按🍬)', '修复次数', '用掉(按🍬)', '得分', '思考用时(秒)'];
+    const rows = list.slice().reverse().map(r => {
+      const c = r.candies || {};
+      return [fmt(r.time), r.scope, r.count, r.correct, r.bestStreak, c.c ?? '', c.l ?? '', c.k ?? '',
+        r.speedBonus ?? '', r.earned, r.repairs ?? '', r.spent, r.score, r.seconds ?? ''];
+    });
+    const cell = v => { const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const csv = '\uFEFF' + [head, ...rows].map(r => r.map(cell).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const d = new Date();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `hanzi-battle-scores-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}.csv`;
+    a.style.display = 'none';
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 3000);
+    Sound.play('tap');
+  }
+
   /* ---------- 绑定 ---------- */
   function bind() {
     $('startBtn').addEventListener('click', startGame);
+    $('exportBtn').addEventListener('click', exportCSV);
     $('ansA').addEventListener('click', () => answer('A'));
     $('ansB').addEventListener('click', () => answer('B'));
     $('ansMid').addEventListener('click', () => answer('mid'));

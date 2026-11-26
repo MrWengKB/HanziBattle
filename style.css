@@ -221,3 +221,5 @@ h1 { font-family: var(--kai); font-size: 44px; margin: 14px 0 4px; letter-spacin
 .speed.over { opacity: .5; filter: grayscale(1); }
 .result-speed { font-size: 17px; font-weight: 800; margin: 6px 0 0; min-height: 1em; }
 .result-speed.win { color: #2a9fd6; }
+
+.link-btn.inline { margin: 0; font-size: 13px; }

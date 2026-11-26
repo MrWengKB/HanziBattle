@@ -3,7 +3,7 @@
   'use strict';
   const KEY = 'hb-records';
   const SET_KEY = 'hb-settings';
-  const MAX = 50;
+  const MAX = 1000;
 
   function read(key, def) {
     try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? def : v; }
