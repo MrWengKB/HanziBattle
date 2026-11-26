@@ -1,7 +1,9 @@
 /* 汉字对决 主程序 */
 (function () {
   'use strict';
-  const VERSION = '1.0.1';
+  const VERSION = '1.1.0';
+  const SPEED_SEC = 5;                          // 快手奖：每题平均 5 秒
+  const SPEED_ACC = 0.8;                        // 并且至少答对八成
   const COUNTS = [6, 10, 15, 21];
   const VALUE = { c: 1, l: 4, k: 8 };          // 1🍭 = 4🍬，1🍰 = 8🍬
   const EMOJI = { c: '🍬', l: '🍭', k: '🍰' };
@@ -18,6 +20,29 @@
   let ALL = [];
   let settings = Store.settings();
   let game = null;
+  let speedTimer = null;
+
+  /* ---------- 快手时间（只算思考时间） ---------- */
+  function usedMs() {
+    if (!game) return 0;
+    return game.thinkMs + (game.answered || !game.qStart ? 0 : performance.now() - game.qStart);
+  }
+  function stopClock() {
+    if (game && !game.answered && game.qStart) { game.thinkMs += performance.now() - game.qStart; game.qStart = 0; }
+  }
+  function updateSpeed() {
+    if (!game) return;
+    const used = usedMs(), left = game.limitMs - used;
+    $('speedBar').style.width = Math.max(0, left / game.limitMs * 100) + '%';
+    $('speed').classList.toggle('over', left < 0);
+    $('speedText').textContent = left >= 0 ? `剩 ${Math.ceil(left / 1000)} 秒` : '没关系～';
+  }
+  function speedBonus(n) { return Math.round(n / 3); }
+  document.addEventListener('visibilitychange', () => {
+    if (!game || game.answered) return;
+    if (document.hidden) stopClock();
+    else game.qStart = performance.now();
+  });
 
   /* ---------- 小工具 ---------- */
   function show(id) {
@@ -151,8 +176,11 @@
       streak: 0, bestStreak: 0, broken: 0,
       inv: { c: 0, l: 0, k: 0 }, earned: { c: 0, l: 0, k: 0 },
       spentValue: 0, repairs: 0, repaired: 0,
-      scope: scopeLabel(), q: null, answered: false
+      scope: scopeLabel(), q: null, answered: false,
+      thinkMs: 0, qStart: 0, limitMs: settings.count * SPEED_SEC * 1000
     };
+    clearInterval(speedTimer);
+    speedTimer = setInterval(updateSpeed, 250);
     Sound.play('start');
     show('screenGame');
     nextQuestion();
@@ -186,11 +214,15 @@
     mid.className = 'ans mid'; mid.disabled = false; mid.textContent = q.mid;
     $('feedback').classList.add('hidden');
     updateStats();
+    game.qStart = performance.now();
+    updateSpeed();
   }
 
   function answer(choice) {
     if (!game || game.answered) return;
+    stopClock();
     game.answered = true;
+    updateSpeed();
     const q = game.q;
     const ids = { A: 'ansA', mid: 'ansMid', B: 'ansB' };
     Object.values(ids).forEach(id => { $(id).disabled = true; });
@@ -294,13 +326,24 @@
   }
 
   function finish() {
+    clearInterval(speedTimer);
+    const secs = game.thinkMs / 1000, limit = game.limitMs / 1000;
+    const fast = game.thinkMs <= game.limitMs && game.correct / game.total >= SPEED_ACC;
+    const bonus = fast ? speedBonus(game.total) : 0;
+    if (bonus) { game.earned.c += bonus; game.inv.c += bonus; }
+    const sp = $('resultSpeed');
+    sp.className = 'result-speed' + (fast ? ' win' : '');
+    if (fast) sp.textContent = `⚡ 快手奖！+${bonus} 🍬　用时 ${secs.toFixed(0)} 秒 / 限时 ${limit} 秒`;
+    else if (game.thinkMs <= game.limitMs) sp.textContent = `⏱ 用时 ${secs.toFixed(0)} 秒，够快了！再多答对几题就能拿快手奖～`;
+    else sp.textContent = `⏱ 用时 ${secs.toFixed(0)} 秒（快手奖限时 ${limit} 秒）`;
     const earnedValue = valueOf(game.earned);
     const score = earnedValue - game.spentValue;
     const prevBest = Store.bestFor(game.total);
     const record = {
       time: Date.now(), scope: game.scope, count: game.total, correct: game.correct,
       bestStreak: game.bestStreak, earned: earnedValue, spent: game.spentValue, score,
-      candies: { ...game.earned }, repairs: game.repairs
+      candies: { ...game.earned }, repairs: game.repairs,
+      seconds: Math.round(secs), speedBonus: bonus
     };
     Store.addRecord(record);
 
@@ -313,7 +356,7 @@
     $('rScore').textContent = score;
     const e = game.earned;
     $('resultDetail').innerHTML =
-      `得到：${e.c} 🍬　${e.l} 🍭　${e.k} 🍰（共值 ${earnedValue} 🍬）<br>` +
+      `得到：${e.c} 🍬　${e.l} 🍭　${e.k} 🍰（共值 ${earnedValue} 🍬${bonus ? '，含快手奖 ' + bonus + ' 🍬' : ''}）<br>` +
       `修复连胜 ${game.repaired} 次，用掉 ${game.spentValue} 🍬`;
     $('resultBest').textContent = (!prevBest || score > prevBest.score)
       ? `🌟 新纪录！这是 ${game.total} 题的最高分！`
@@ -343,7 +386,7 @@
       }
       clearTimeout(quitArmed); quitArmed = null;
       $('quitBtn').textContent = '🏠'; $('quitBtn').style.width = '';
-      game = null; renderHome(); show('screenHome');
+      clearInterval(speedTimer); game = null; renderHome(); show('screenHome');
     });
     const sb = $('soundBtn');
     const paint = () => { sb.textContent = Sound.isMuted() ? '🔇' : '🔊'; };

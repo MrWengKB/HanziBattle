@@ -3,7 +3,7 @@
  * - 网页、脚本、样式、字表：优先联网拿最新版，没网或太慢时用缓存
  * - 字体：缓存优先（文件大、很少改）。更换字体时把 FONT_CACHE 版本号加 1
  */
-const CORE_CACHE = 'hb-core-v2';
+const CORE_CACHE = 'hb-core-v3';
 const FONT_CACHE = 'hb-fonts-v2';
 const NETWORK_TIMEOUT_MS = 3000;
 
