@@ -1,0 +1,60 @@
+name: 构建安卓 APK 和 AAB
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - version-history.md
+      - android/**
+      - .github/workflows/build-android.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
+      - name: 编译 APK 和 AAB
+        working-directory: android
+        run: gradle assembleRelease bundleRelease --no-daemon
+
+      - name: 重命名
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk HanziBattle.apk
+          cp android/app/build/outputs/bundle/release/app-release.aab HanziBattle.aab
+          ls -la HanziBattle.apk HanziBattle.aab
+
+      - name: 发布到 Releases（APK 和 AAB 分开，可直接下载）
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # 取 version-history.md 里最新一个版本（第一个 ## 段落）写进发布说明，App 的更新提醒就显示这一段
+          awk '/^##[[:space:]]/{n++} n==1' version-history.md > latest-notes.md
+          VERSION=$(grep -oE '[vV][0-9]+(\.[0-9]+)*' latest-notes.md | head -1)
+          {
+            echo "第 ${{ github.run_number }} 次构建。"
+            echo
+            echo "- **HanziBattle.apk**：手机直接下载安装（需要允许安装未知来源应用），完全离线可用。"
+            echo "- **HanziBattle.aab**：上架 Google Play 用，手机不能直接安装。"
+            echo
+            cat latest-notes.md
+          } > release-notes.md
+
+          gh release delete apk-latest --cleanup-tag -y || true
+          gh release create apk-latest HanziBattle.apk HanziBattle.aab \
+            --title "汉字对决 ${VERSION:-（最新）}" \
+            --notes-file release-notes.md \
+            --latest

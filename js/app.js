@@ -1,7 +1,7 @@
 /* 汉字对决 主程序 */
 (function () {
   'use strict';
-  const VERSION = '1.4.2';
+  const VERSION = '1.5.0';
   const SPEED_SEC = 6;                          // 快手奖：限时 = 题数 × 6 秒
   const SPEED_ACC = 0.8;                        // 并且至少答对八成
   const COUNTS = [6, 10, 15, 21];
@@ -398,6 +398,12 @@
     const csv = '\uFEFF' + [head, ...rows].map(r => r.map(cell).join(',')).join('\r\n');
     const d = new Date();
     const name = `hanzi-battle-scores-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}.csv`;
+    // 安卓 App 里：交给系统的“另存为”
+    if (window.AndroidBridge && typeof window.AndroidBridge.saveFile === 'function') {
+      window.AndroidBridge.saveFile(name, 'text/csv', csv);
+      Sound.play('tap');
+      return;
+    }
     // Safari 对“程序生成的 blob 链接”下载不稳定，改用 data: 链接
     const isSafari = /^((?!chrome|chromium|crios|fxios|android|edg).)*safari/i.test(navigator.userAgent);
     let href;
@@ -464,6 +470,16 @@
       } else if (e.key === 'Enter') { e.preventDefault(); nextQuestion(); }
     });
   }
+
+  // 安卓返回键：不在首页时先回首页（返回 true 表示已处理）
+  window.hbBack = function () {
+    if ($('screenHome').classList.contains('active')) return false;
+    clearInterval(speedTimer);
+    game = null;
+    renderHome();
+    show('screenHome');
+    return true;
+  };
 
   async function init() {
     $('verLabel').textContent = 'v' + VERSION;

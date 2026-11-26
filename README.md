@@ -31,3 +31,10 @@
 - `hanzilist.csv`：字表，复制自 [HanziQuery](https://github.com/MrWengKB/HanziQuery)，删去甲骨文、甲骨文字、课文词语三栏，新增声母1、声母2（由拼音推出；y、w 算声母，a/o/e 开头的字没有声母）。
 - `fonts/kaiti.ttf`：完整楷体字体，复制自 HanziQuery。
 - `index.html`、`style.css`、`js/`：网页本体；`sw.js`：离线缓存。
+
+## 安卓版
+- 到 [Releases](https://github.com/MrWengKB/HanziBattle/releases/tag/apk-latest) 下载：
+  - **HanziBattle.apk**：手机直接安装（需允许安装未知来源应用）。
+  - **HanziBattle.aab**：上架 Google Play 用。
+- 完全离线；启动时如果有网络会检查更新，有新版会显示更新内容，由你选择「下载安装」或「以后再说」。
+- 每次 `version-history.md` 或 `android/` 有改动推送到 main，GitHub Actions 会自动重新打包并更新 Releases。
