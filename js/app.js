@@ -1,7 +1,7 @@
 /* 汉字对决 主程序 */
 (function () {
   'use strict';
-  const VERSION = '1.2.1';
+  const VERSION = '1.3.0';
   const SPEED_SEC = 5;                          // 快手奖：每题平均 5 秒
   const SPEED_ACC = 0.8;                        // 并且至少答对八成
   const COUNTS = [6, 10, 15, 21];
@@ -212,6 +212,10 @@
     });
     const mid = $('ansMid');
     mid.className = 'ans mid'; mid.disabled = false; mid.textContent = q.mid;
+    // 读音题（声母、韵母、拼音）不给小喇叭，免得直接听出答案
+    const noSpeak = ['sm', 'ym', 'py'].includes(q.type);
+    $('spkA').classList.toggle('off', noSpeak);
+    $('spkB').classList.toggle('off', noSpeak);
     $('feedback').classList.add('hidden');
     updateStats();
     game.qStart = performance.now();
@@ -410,6 +414,8 @@
   function bind() {
     $('startBtn').addEventListener('click', startGame);
     $('exportBtn').addEventListener('click', exportCSV);
+    $('spkA').addEventListener('click', e => { if (game && game.q) Speak.play(game.q.a.py1, e.currentTarget); });
+    $('spkB').addEventListener('click', e => { if (game && game.q) Speak.play(game.q.b.py1, e.currentTarget); });
     $('ansA').addEventListener('click', () => answer('A'));
     $('ansB').addEventListener('click', () => answer('B'));
     $('ansMid').addEventListener('click', () => answer('mid'));
@@ -454,6 +460,7 @@
       return;
     }
     renderHome();
+    setTimeout(() => Speak.prefetch(ALL), 3000);
   }
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {

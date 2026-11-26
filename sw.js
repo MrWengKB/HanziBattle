@@ -3,8 +3,9 @@
  * - 网页、脚本、样式、字表：优先联网拿最新版，没网或太慢时用缓存
  * - 字体：缓存优先（文件大、很少改）。更换字体时把 FONT_CACHE 版本号加 1
  */
-const CORE_CACHE = 'hb-core-v5';
+const CORE_CACHE = 'hb-core-v6';
 const FONT_CACHE = 'hb-fonts-v2';
+const AUDIO_CACHE = 'hb-audio-v1';   // 读音：第一次用到时下载并缓存
 const NETWORK_TIMEOUT_MS = 3000;
 
 const CORE_FILES = [
@@ -16,6 +17,7 @@ const CORE_FILES = [
   'js/sound.js',
   'js/questions.js',
   'js/storage.js',
+  'js/speak.js',
   'js/app.js',
   'manifest.webmanifest',
   'icons/icon-192.png',
@@ -37,7 +39,7 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(keys
-        .filter(k => k.startsWith('hb-') && k !== CORE_CACHE && k !== FONT_CACHE)
+        .filter(k => k.startsWith('hb-') && k !== CORE_CACHE && k !== FONT_CACHE && k !== AUDIO_CACHE)
         .map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
@@ -49,6 +51,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.endsWith('.ttf')) event.respondWith(cacheFirst(req));
+  else if (url.pathname.includes('/audio/')) event.respondWith(audioFirst(url));
   else event.respondWith(networkFirst(req));
 });
 
@@ -74,4 +77,14 @@ async function networkFirst(req) {
   const cached = await cache.match(req, { ignoreSearch: true });
   if (cached) return cached;
   return network;
+}
+
+async function audioFirst(url) {
+  const cache = await caches.open(AUDIO_CACHE);
+  const key = url.origin + url.pathname;
+  const cached = await cache.match(key);
+  if (cached) return cached;
+  const res = await fetch(key);
+  if (res.status === 200) await cache.put(key, res.clone());
+  return res;
 }

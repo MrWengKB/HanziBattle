@@ -23,6 +23,8 @@
 - 成绩只保存在本机（浏览器 localStorage），不会上传。首页底部可以「保存成绩为 Excel/CSV」下载全部成绩。
 - 打开过一次之后可以离线使用，也可以“添加到主屏幕”当 App 用（PWA）。
 - 音效用 Web Audio 现场合成，右上角可以静音。
+- 笔画、结构、部首题的汉字下面有小喇叭 🔈，点一下读出拼音1（读音题不提供，免得听出答案）。
+- `audio/`：读音文件，复制自 HanziQuery，来源 [hugolpz/audio-cmn](https://github.com/hugolpz/audio-cmn/)（CC-BY-SA），轻声按第一声处理。
 - 电脑上可以用键盘：1 / 2 / 3 选答案，回车下一题。
 
 ## 文件

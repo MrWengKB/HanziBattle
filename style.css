@@ -225,3 +225,13 @@ h1 { font-family: var(--kai); font-size: 44px; margin: 14px 0 4px; letter-spacin
 .link-btn.inline { margin: 0; font-size: 13px; }
 .export-fallback { display: block; margin-top: 8px; }
 .export-fallback a { color: var(--pink-d); font-weight: 700; }
+
+/* 小喇叭 */
+.speaker {
+  justify-self: center; border: none; border-radius: 999px; background: #fff;
+  font-size: 24px; width: 56px; height: 44px; box-shadow: 0 3px 0 rgba(90,59,92,.12);
+  transition: transform .1s;
+}
+.speaker:active { transform: scale(.9); }
+.speaker.playing { background: #fff0f6; animation: bump .5s ease infinite; }
+.speaker.off { visibility: hidden; }
