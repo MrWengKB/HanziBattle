@@ -43,8 +43,8 @@ android {
         versionName = latestVersionName()
     }
 
-    // 签名：优先用 GitHub Secrets 里的上传密钥（打包时由 workflow 解码到 HB_KEYSTORE_FILE），
-    // 没有设置时才退回仓库里的旧密钥（只适合直接安装 APK，不要用来上架）
+    // 签名：使用 GitHub Secrets 里的上传密钥（打包时由 workflow 解码到 HB_KEYSTORE_FILE）。
+    // 密钥不放在仓库里；本机打包时自己设置这四个环境变量即可
     val ksFile = System.getenv("HB_KEYSTORE_FILE")
     signingConfigs {
         create("release") {
@@ -53,11 +53,6 @@ android {
                 storePassword = System.getenv("HB_KEYSTORE_PASSWORD")
                 keyAlias = System.getenv("HB_KEY_ALIAS")
                 keyPassword = System.getenv("HB_KEY_PASSWORD")
-            } else {
-                storeFile = file("hanzibattle.keystore")
-                storePassword = "android"
-                keyAlias = "hanzibattle"
-                keyPassword = "android"
             }
         }
     }
