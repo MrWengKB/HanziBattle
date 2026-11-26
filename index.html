@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css?v=1.3.0">
+  <link rel="stylesheet" href="style.css?v=1.4.0">
 </head>
 <body>
   <div class="bg-deco" aria-hidden="true">
@@ -50,8 +50,11 @@
         <li>1 🍭 = 4 🍬　　1 🍰 = 8 🍬</li>
         <li>答错会中断连胜，可以用糖果修复：<br>
           第 1 次 1 🍬 → 第 2 次 2 🍬 → 第 3 次 1 🍭 或 4 🍬 → 第 4 次 1 🍰 或 8 🍬（每局最多 4 次）</li>
-        <li>⚡ 快手奖：整局思考时间不超过「题数 × 5 秒」，而且至少答对八成，<br>
-          再送 🍬（6 题 2 颗、10 题 3 颗、15 题 5 颗、21 题 7 颗）。看解释和修复的时间不算。</li>
+        <li>⚡ 快手奖：至少答对八成，整局思考时间在「题数 × 6 秒」以内就有奖，越快越多：<br>
+          ⚡⚡⚡ 用时 ⅓ 以内：题数的 ⅔ 🍬（6/10/15/21 题：4/6/10/14 颗）<br>
+          ⚡⚡ ⅓～⅔：题数的 ⅓ 🍬（2/3/5/7 颗）<br>
+          ⚡ ⅔～限时：题数的 ¼ 🍬（1/2/3/5 颗）<br>
+          看解释和修复的时间不算。</li>
         <li>最后得分 = 得到的糖果 − 用掉的糖果（按 🍬 计算）</li>
       </ul>
     </section>
@@ -72,8 +75,8 @@
       <div class="progress"><div id="progressBar"></div><span id="progressText"></span></div>
     </div>
     <div class="speed" id="speed">
-      <span class="speed-icon">⚡</span>
-      <div class="speed-track"><div id="speedBar"></div></div>
+      <span class="speed-icon" id="speedIcon">⚡</span>
+      <div class="speed-track"><div id="speedBar"></div><i class="tick t1"></i><i class="tick t2"></i></div>
       <span id="speedText" class="speed-text"></span>
     </div>
     <div class="stats">
@@ -132,11 +135,11 @@
 
   <div id="confetti" class="confetti" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1.3.0"></script>
-  <script src="js/sound.js?v=1.3.0"></script>
-  <script src="js/questions.js?v=1.3.0"></script>
-  <script src="js/storage.js?v=1.3.0"></script>
-  <script src="js/speak.js?v=1.3.0"></script>
-  <script src="js/app.js?v=1.3.0"></script>
+  <script src="js/data.js?v=1.4.0"></script>
+  <script src="js/sound.js?v=1.4.0"></script>
+  <script src="js/questions.js?v=1.4.0"></script>
+  <script src="js/storage.js?v=1.4.0"></script>
+  <script src="js/speak.js?v=1.4.0"></script>
+  <script src="js/app.js?v=1.4.0"></script>
 </body>
 </html>

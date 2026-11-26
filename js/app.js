@@ -1,8 +1,8 @@
 /* 汉字对决 主程序 */
 (function () {
   'use strict';
-  const VERSION = '1.3.0';
-  const SPEED_SEC = 5;                          // 快手奖：每题平均 5 秒
+  const VERSION = '1.4.0';
+  const SPEED_SEC = 6;                          // 快手奖：限时 = 题数 × 6 秒
   const SPEED_ACC = 0.8;                        // 并且至少答对八成
   const COUNTS = [6, 10, 15, 21];
   const VALUE = { c: 1, l: 4, k: 8 };          // 1🍭 = 4🍬，1🍰 = 8🍬
@@ -33,11 +33,24 @@
   function updateSpeed() {
     if (!game) return;
     const used = usedMs(), left = game.limitMs - used;
+    const t = speedTier(used, game.limitMs);
     $('speedBar').style.width = Math.max(0, left / game.limitMs * 100) + '%';
-    $('speed').classList.toggle('over', left < 0);
+    const sp = $('speed');
+    sp.classList.toggle('over', !t);
+    sp.dataset.tier = t ? t.level : 0;
+    $('speedIcon').textContent = t ? t.icon : '⚡';
     $('speedText').textContent = left >= 0 ? `剩 ${Math.ceil(left / 1000)} 秒` : '没关系～';
   }
-  function speedBonus(n) { return Math.round(n / 3); }
+  // 快手奖分三级（按用掉的时间占限时的比例），糖果数无条件舍去
+  const SPEED_TIERS = [
+    { level: 3, upTo: 1 / 3, share: 2 / 3, icon: '⚡⚡⚡', name: '闪电快手' },
+    { level: 2, upTo: 2 / 3, share: 1 / 3, icon: '⚡⚡', name: '超级快手' },
+    { level: 1, upTo: 1, share: 1 / 4, icon: '⚡', name: '快手' }
+  ];
+  function speedTier(usedMs, limitMs) {
+    return SPEED_TIERS.find(t => usedMs <= limitMs * t.upTo + 1e-6) || null;
+  }
+  function speedBonus(n, tier) { return tier ? Math.floor(n * tier.share + 1e-9) : 0; }
   document.addEventListener('visibilitychange', () => {
     if (!game || game.answered) return;
     if (document.hidden) stopClock();
@@ -332,13 +345,14 @@
   function finish() {
     clearInterval(speedTimer);
     const secs = game.thinkMs / 1000, limit = game.limitMs / 1000;
-    const fast = game.thinkMs <= game.limitMs && game.correct / game.total >= SPEED_ACC;
-    const bonus = fast ? speedBonus(game.total) : 0;
+    const tier = speedTier(game.thinkMs, game.limitMs);
+    const fast = !!tier && game.correct / game.total >= SPEED_ACC;
+    const bonus = fast ? speedBonus(game.total, tier) : 0;
     if (bonus) { game.earned.c += bonus; game.inv.c += bonus; }
     const sp = $('resultSpeed');
     sp.className = 'result-speed' + (fast ? ' win' : '');
-    if (fast) sp.textContent = `⚡ 快手奖！+${bonus} 🍬　用时 ${secs.toFixed(0)} 秒 / 限时 ${limit} 秒`;
-    else if (game.thinkMs <= game.limitMs) sp.textContent = `⏱ 用时 ${secs.toFixed(0)} 秒，够快了！再多答对几题就能拿快手奖～`;
+    if (fast) sp.textContent = `${tier.icon} ${tier.name}！+${bonus} 🍬　用时 ${secs.toFixed(0)} 秒 / 限时 ${limit} 秒`;
+    else if (tier) sp.textContent = `⏱ 用时 ${secs.toFixed(0)} 秒，够快了！再多答对几题就能拿快手奖～`;
     else sp.textContent = `⏱ 用时 ${secs.toFixed(0)} 秒（快手奖限时 ${limit} 秒）`;
     const earnedValue = valueOf(game.earned);
     const score = earnedValue - game.spentValue;
@@ -347,7 +361,7 @@
       time: Date.now(), scope: game.scope, count: game.total, correct: game.correct,
       bestStreak: game.bestStreak, earned: earnedValue, spent: game.spentValue, score,
       candies: { ...game.earned }, repairs: game.repairs,
-      seconds: Math.round(secs), speedBonus: bonus
+      seconds: Math.round(secs), speedBonus: bonus, speedLevel: fast ? tier.level : 0
     };
     Store.addRecord(record);
 
@@ -377,11 +391,11 @@
     if (!list.length) { $('exportBtn').textContent = '还没有成绩可以保存'; setTimeout(() => { $('exportBtn').textContent = '📥 保存成绩为 Excel/CSV'; }, 2000); return; }
     const pad = n => String(n).padStart(2, '0');
     const fmt = t => { const d = new Date(t); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
-    const head = ['时间', '范围', '题数', '答对', '最长连对', '糖果🍬', '棒棒糖🍭', '蛋糕🍰', '快手奖🍬', '得到(按🍬)', '修复次数', '用掉(按🍬)', '得分', '思考用时(秒)'];
+    const head = ['时间', '范围', '题数', '答对', '最长连对', '糖果🍬', '棒棒糖🍭', '蛋糕🍰', '快手等级', '快手奖🍬', '得到(按🍬)', '修复次数', '用掉(按🍬)', '得分', '思考用时(秒)'];
     const rows = list.slice().reverse().map(r => {
       const c = r.candies || {};
       return [fmt(r.time), r.scope, r.count, r.correct, r.bestStreak, c.c ?? '', c.l ?? '', c.k ?? '',
-        r.speedBonus ?? '', r.earned, r.repairs ?? '', r.spent, r.score, r.seconds ?? ''];
+        r.speedLevel ?? '', r.speedBonus ?? '', r.earned, r.repairs ?? '', r.spent, r.score, r.seconds ?? ''];
     });
     const cell = v => { const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
     const csv = '\uFEFF' + [head, ...rows].map(r => r.map(cell).join(',')).join('\r\n');

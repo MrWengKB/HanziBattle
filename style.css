@@ -235,3 +235,13 @@ h1 { font-family: var(--kai); font-size: 44px; margin: 14px 0 4px; letter-spacin
 .speaker:active { transform: scale(.9); }
 .speaker.playing { background: #fff0f6; animation: bump .5s ease infinite; }
 .speaker.off { visibility: hidden; }
+
+/* 快手奖三级 */
+.speed-track { position: relative; }
+.speed-track .tick { position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(90,59,92,.35); }
+.speed-track .t1 { left: 33.333%; }
+.speed-track .t2 { left: 66.667%; }
+.speed-icon { width: auto; min-width: 46px; font-size: 14px; letter-spacing: -3px; }
+.speed[data-tier="3"] #speedBar { background: linear-gradient(90deg, #ffd56b, #ffb347); }
+.speed[data-tier="2"] #speedBar { background: linear-gradient(90deg, #8fe3b4, #3fbf7c); }
+.speed[data-tier="1"] #speedBar { background: linear-gradient(90deg, #9ed6ff, #4aa8f0); }
