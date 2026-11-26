@@ -35,7 +35,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.mrwengkb.hanzibattle"
+        applicationId = "io.github.mrwengkb.hanzibattle"
         minSdk = 26
         targetSdk = 36
         // 每次 GitHub Actions 构建自动递增，方便覆盖安装；也用来判断有没有新版本
